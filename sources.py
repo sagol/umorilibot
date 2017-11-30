@@ -11,9 +11,3 @@ class Sources:
 
     def get(self):
         return self.sources
-
-
-#r = requests.get('http://umorili.herokuapp.com/api/sources')
-#d = JSONEncoder(r.json())
-#print(d)
-#pprint(r.json())

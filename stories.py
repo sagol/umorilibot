@@ -35,7 +35,12 @@ class Stories:
                     self.stories.append(s)
         return True
 
-    def get(self, num=1, sites=[], site_names=[], random=False):
+    def get(self, num=1, sites=None, site_names=None, random=False):
+        if sites is None:
+            sites = []
+        if site_names is None:
+            site_names = []
+
         stories = self.stories
         if random:
             shuffle(stories)

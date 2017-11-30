@@ -12,7 +12,7 @@ sites = list(set(names.values()))
 site_names = list(names.keys())
 print(sites)
 print(site_names)
-print(list([(x.get().get('site'), x.get().get('site_name')) for x in
-    stories.get(num=1, sites=sites, site_names=site_names, random=True)]))
+print([(x.get().get('site'), x.get().get('site_name')) for x in
+    stories.get(num=1, sites=sites, site_names=site_names, random=True)])
 
 #print(list(set(names.values())))
