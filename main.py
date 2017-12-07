@@ -105,9 +105,6 @@ def main():
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("random", random))
 
-    #dp.add_handler(CommandHandler("get", get))
-    #dp.add_handler(CallbackQueryHandler(button_handler))
-
     dp.add_handler(MessageHandler(Filters.text, help))
 
     dp.add_error_handler(error)
