@@ -1,5 +1,9 @@
 import requests
 import itertools
+import time
+import copy
+
+from bs4 import BeautifulSoup
 from random import shuffle
 from urllib.parse import urlencode
 from story import Story
@@ -10,7 +14,21 @@ class Stories:
     def __init__(self, src):
         self.sources = src
         self.stories = []
+        self.timestamp = 0
 
+    def _clear_text_(self, html):
+        VALID_TAGS = ['b', 'i', 'a', 'code', 'pre']
+        src = copy.copy(html)
+        src = src.replace('Проголосовать: \n<a', 'Проголосовать: <a') #костыль
+        src = src.replace('</a>, \n<a', '</a>, <a') #костыль
+        soup = BeautifulSoup(src, "html.parser")
+        for tag in soup.findAll(True):
+            if tag.name not in VALID_TAGS:
+    	        tag.hidden = True
+        text = str(soup)
+ 
+        return text
+       
     def load(self):
         src_list = self.sources.get()
         for site in src_list:
@@ -27,20 +45,25 @@ class Stories:
                         'site_name': s.get('name'),
                         'site_desc': s.get('desc'),
                         'story_url': "{0}{1}".format(self.sources.start_url,
-                                                     s.get('link')),
-                        'story': s.get('elementPureHtml')
+                                                     s.get('link')),                                                     
+                        'story': self._clear_text_(s.get('elementPureHtml')),
+                        'story_html': s.get('elementPureHtml')
+
                     }
                     s = Story()
                     s.set(story)
                     self.stories.append(s)
         return True
 
-    def get(self, num=1, sites=None, site_names=None, random=False):
+    def get(self, num=1, sites=None, site_names=None, random=False):        
         if sites is None:
             sites = []
         if site_names is None:
             site_names = []
-
+        current_time = time.time()
+        if current_time - self.timestamp > 3600:
+            self.load()
+            self.timestamp = time.time()
         stories = self.stories
         if random:
             shuffle(stories)
@@ -53,3 +76,7 @@ class Stories:
     def get_names(self):
         return {x.get().get('site_name'): x.get().get('site') for x in
                 self.stories}
+
+    def get_description(self):
+            return {x.get().get('site_name'): x.get().get('site_desc') for x in
+                    self.stories}
