@@ -14,18 +14,19 @@ class Bot():
         self.stories = Stories(self.sources)
         self.stories.load()
     
-    def start(self):
+    def start(self):  
         message = 'Бот для сайта http://umori.li'
         return message
 
     def help(self):
-        message = "/get [источники] [количество] \n источники: \n\t{0}\n"\
-        "/random [источник] [количество]".format(
-            '\n\t'.join(['{0} - {1}'.format(x, y) for (x,y) in self.stories.get_description().items()]))
+        message = "/get - читать истории из: \n\t{0}\n"\
+        "/random - случайные истории".format(
+            '\n\t'.join(['{0}'.format(y) for (x,y) in self.stories.get_description().items()]))
         return message
 
-    def random(self, num=1):
-        site_names = list(self.stories.get_names().keys())
+    def random(self, num=None, site_names=None):
+        if site_names is None:
+            site_names = list(self.stories.get_names().keys())  
         sites = list(self.stories.get_names().values())
         messages = []
         stories = self.stories.get(num=num, site_names=site_names,
@@ -34,7 +35,7 @@ class Bot():
             messages.append(s.get().get('story'))
         return messages
 
-    def get(self, num=1, site_names=None):
+    def get(self, num=None, site_names=None):
         if site_names is None:
             site_names = list(self.stories.get_names().keys())    
         sites = list(self.stories.get_names().values())    
@@ -57,5 +58,5 @@ class Bot():
         for sites_list in self.sources.get():
             for s in sites_list:
                 if s.get('site') == site:
-                    names.add(s.get('name'))
+                    names.add((s.get('name'), s.get('desc')))
         return list(names)            

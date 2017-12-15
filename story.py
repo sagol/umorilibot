@@ -1,3 +1,5 @@
+import hashlib
+
 class Story:
 
     def __init__(self):
@@ -27,3 +29,12 @@ class Story:
             'story_html': self.story_html
         }
         return story
+
+    def __hash__(self):
+        return hash((self.story_url, self.story))
+
+    def __eq__(self, other):
+        if isinstance(self, other.__class__):
+            return self.story == other.story
+        return NotImplemented
+

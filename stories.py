@@ -30,6 +30,7 @@ class Stories:
         return text
        
     def load(self):
+        self.stories = []
         src_list = self.sources.get()
         for site in src_list:
             for site_name in site:
@@ -39,6 +40,7 @@ class Stories:
                           ('name', site_name.get('name')),
                           ('num', 100)]
                 r = requests.get(url, params=urlencode(params))
+                i = 0
                 for s in r.json():
                     story = {
                         'site': s.get('site'),
@@ -48,14 +50,16 @@ class Stories:
                                                      s.get('link')),                                                     
                         'story': self._clear_text_(s.get('elementPureHtml')),
                         'story_html': s.get('elementPureHtml')
-
                     }
-                    s = Story()
-                    s.set(story)
-                    self.stories.append(s)
+                    st = Story()
+                    st.set(story)
+                    self.stories.append(st)
+                    i += 1
+                print(site_name.get('name'), i) 
+        self.timestamp = time.time()
         return True
 
-    def get(self, num=1, sites=None, site_names=None, random=False):        
+    def get(self, num=None, sites=None, site_names=None, random=False):        
         if sites is None:
             sites = []
         if site_names is None:
@@ -63,15 +67,17 @@ class Stories:
         current_time = time.time()
         if current_time - self.timestamp > 3600:
             self.load()
-            self.timestamp = time.time()
         stories = self.stories
         if random:
             shuffle(stories)
-        stories = itertools.islice([x for x in stories
+        if num is None:
+            num = len(stories)
+
+        selected_stories = itertools.islice([x for x in stories
                                     if x.get().get('site') in sites and
                                        x.get().get('site_name') in site_names],
                                    num)
-        return stories
+        return selected_stories
 
     def get_names(self):
         return {x.get().get('site_name'): x.get().get('site') for x in
