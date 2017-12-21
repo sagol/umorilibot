@@ -1,18 +1,17 @@
 from sources import Sources
 from stories import Stories
 
-#src = Sources('http://umorili.herokuapp.com')
-#stories = Stories(src)
-#stories.load()
-#story = stories.get()[0]
-#print(story.get().get('story'))
 class Bot():
 
     def __init__(self, config):
         self.url = config.get_url()
-        self.sources = Sources(self.url)
-        self.stories = Stories(self.sources)
-        self.stories.load()
+        self.sources = None
+        self.stories = None
+
+    def load(self):
+        self.sources = Sources(self.url)        
+        self.stories = Stories(self.sources)        
+        return self.stories.load()
     
     def start(self):  
         message = 'Бот для сайта http://umori.li'

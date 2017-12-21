@@ -2,6 +2,7 @@ import requests
 import itertools
 import time
 import copy
+import logging
 
 from bs4 import BeautifulSoup
 from random import shuffle
@@ -15,6 +16,7 @@ class Stories:
         self.sources = src
         self.stories = []
         self.timestamp = 0
+        self.logger = logging.getLogger(__name__)
 
     def _clear_text_(self, html):
         VALID_TAGS = ['b', 'i', 'a', 'code', 'pre']
@@ -32,6 +34,8 @@ class Stories:
     def load(self):
         self.stories = []
         src_list = self.sources.get()
+        if not src_list:
+            return False
         for site in src_list:
             for site_name in site:
                 url = "{0}{1}".format(self.sources.start_url, '/api/get')
@@ -39,7 +43,13 @@ class Stories:
                 params = [('site', site_name.get('site')),
                           ('name', site_name.get('name')),
                           ('num', 100)]
-                r = requests.get(url, params=urlencode(params))
+                try:
+                    r = requests.get(url, params=urlencode(params))
+                except:
+                    self.logger.warning('Stories request failed')
+                    return False
+                if not r.status_code == 200: 
+                    return False
                 i = 0
                 for s in r.json():
                     story = {

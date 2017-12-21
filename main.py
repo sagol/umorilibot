@@ -1,21 +1,11 @@
 import logging
+import time
 from telegram.ext import Updater, Filters
 from telegram.ext import (CommandHandler, MessageHandler, CallbackQueryHandler,
                           ConversationHandler)
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton
 from config import Config
 from bot import Bot
-
-#names = stories.get_names()
-#sites = list(set(names.values()))
-#site_names = list(names.keys())
-#print(sites)
-#print(site_names)
-#print([(x.get().get('site'), x.get().get('site_name')) for x in
-#    stories.get(num=1, sites=sites, site_names=site_names, random=True)])
-
-#print(list(set(names.values())))
-
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -139,6 +129,10 @@ def main():
     
     """Start the bot."""
     updater = Updater(config.get_token())
+
+    while not ubot.load():
+        logger.warning('Umorili bot loading error')
+        time.sleep(10)
 
     dp = updater.dispatcher
 
