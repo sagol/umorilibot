@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import logging
 import time
 from telegram.ext import Updater, Filters
