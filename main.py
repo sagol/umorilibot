@@ -129,7 +129,14 @@ def main():
     
     """Start the bot."""
     updater = Updater(config.get_token())
-
+    updater.start_webhook(listen=config.get_host(),
+                          port=config.get_port(),
+                          url_path=config.get_token(),
+                          key=config.get_key(),
+                          cert=config.get_cert(),
+                          webhook_url='https://{0}:{1}/{2}'.format(config.get_host(),
+                                                                   config.get_port(),
+                                                                   config.get_token())
     while not ubot.load():
         logger.warning('Umorili bot loading error')
         time.sleep(10)
