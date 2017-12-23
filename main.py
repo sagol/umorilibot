@@ -19,7 +19,7 @@ ubot = Bot(config)
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+    update.message.reply_text(ubot.start())
 
 
 def help(bot, update):
