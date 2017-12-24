@@ -66,8 +66,16 @@ def site_name_handler(bot, update, user_data):
         return ConversationHandler.END
     button_list = [InlineKeyboardButton(s, callback_data=s) for s in ['stop', 'next']]
     reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=2))
-    text = user_data['stories'][user_data['count']%len( user_data['stories'])]
-    bot.send_message(query.message.chat_id, text=text, reply_markup=reply_markup, parse_mode='HTML')
+
+    message = user_data['stories'][user_data['count']%len(user_data['stories'])]
+    msgs = [message[i:i + 4096] for i in range(0, len(message), 4096)]
+    length = len(msgs)
+    rm = None
+    for ix, text in enumerate(msgs, start=1):    
+        if ix == length:
+            rm = reply_markup
+        bot.send_message(query.message.chat_id, text=text, reply_markup=rm, parse_mode='HTML')
+
     user_data['count'] = 1
     return SITE_READ
 
@@ -82,10 +90,16 @@ def site_read_handler(bot, update, user_data):
         
     button_list = [InlineKeyboardButton(s, callback_data=s) for s in ['stop', 'next']]
     reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=2))
-    text = user_data['stories'][user_data['count']%len( user_data['stories'])]
-#    bot.send_message(query.message.chat_id, text=user_data["count"])
 
-    bot.send_message(query.message.chat_id, text=text, reply_markup=reply_markup, parse_mode='HTML')
+    message = user_data['stories'][user_data['count']%len(user_data['stories'])]
+    msgs = [message[i:i + 4096] for i in range(0, len(message), 4096)]
+    length = len(msgs)
+    rm = None
+    for ix, text in enumerate(msgs, start=1):    
+        if ix == length:
+            rm = reply_markup
+        bot.send_message(query.message.chat_id, text=text, reply_markup=rm, parse_mode='HTML')
+
     user_data['count'] = user_data['count'] + 1
     return SITE_READ
 
@@ -106,13 +120,19 @@ def random(bot, update, user_data):
         return ConversationHandler.END
     button_list = [InlineKeyboardButton(s, callback_data=s) for s in ['stop', 'next']]
     reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=2))
-    text = user_data['stories'][user_data['count']%len( user_data['stories'])]
-    bot.send_message(update.message.chat_id, text=text, reply_markup=reply_markup, parse_mode='HTML')
+
+    message = user_data['stories'][user_data['count']%len(user_data['stories'])]
+    msgs = [message[i:i + 4096] for i in range(0, len(message), 4096)]
+    length = len(msgs)
+    rm = None
+    for ix, text in enumerate(msgs, start=1):    
+        if ix == length:
+            rm = reply_markup
+        bot.send_message(update.message.chat_id, text=text, reply_markup=rm, parse_mode='HTML')
     user_data['count'] = 1
     return SITE_READ
 
 def stop(bot, update):
-    print(stop)
     return ConversationHandler.END
 
 def echo(bot, update):
@@ -127,19 +147,21 @@ def error(bot, update, error):
 
 SITE, SITE_NAME, SITE_READ = range(3)
 
+
 def main():
     
     """Start the bot."""
     updater = Updater(config.get_token())
-    updater.start_webhook(listen=config.get_host(),
-                          port=int(config.get_port()),
-                          url_path=config.get_token(),
-                          key=config.get_key(),
-                          cert=config.get_cert(),
-                          webhook_url='https://{0}:{1}/{2}'.format(config.get_host(),
-                                                                   config.get_port(),
-                                                                   config.get_token())
-                         )
+    if config.get_webhook() == 'yes':
+        updater.start_webhook(listen=config.get_host(),
+                            port=int(config.get_port()),
+                            url_path=config.get_token(),
+                            key=config.get_key(),
+                            cert=config.get_cert(),
+                            webhook_url='https://{0}:{1}/{2}'.format(config.get_host(),
+                                                                    config.get_port(),
+                                                                    config.get_token())
+                            )
     while not ubot.load():
         logger.warning('Umorili bot loading error')
         time.sleep(10)
@@ -160,7 +182,8 @@ def main():
             SITE_NAME: [CallbackQueryHandler(site_name_handler, pass_user_data=True)],
             SITE_READ: [CallbackQueryHandler(site_read_handler, pass_user_data=True)]
         },
-        fallbacks=[CallbackQueryHandler(site_read_handler, pass_user_data=True)]
+        fallbacks=[CallbackQueryHandler(site_read_handler, pass_user_data=True),
+                   CommandHandler("stop", stop)]
     )
     dp.add_handler(conv_handler)
 

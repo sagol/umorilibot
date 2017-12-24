@@ -20,6 +20,7 @@ class Config():
         self.key = self.config['default']['key']  
         self.host = self.config['default']['host']  
         self.port = self.config['default']['port']  
+        self.webhook = self.config['default']['webhook']  
         self.token = self.config['secret']['token']
         print(self.api_url, self.token)
         return True
@@ -47,3 +48,7 @@ class Config():
     def get_key(self):
         print(self.key)
         return self.key
+
+    def get_webhook(self):
+        print(self.webhook)
+        return self.webhook

@@ -58,4 +58,4 @@ class Bot():
             for s in sites_list:
                 if s.get('site') == site:
                     names.add((s.get('name'), s.get('desc')))
-        return list(names)            
+        return list(names)
