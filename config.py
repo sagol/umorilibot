@@ -22,6 +22,7 @@ class Config():
         self.port = self.config['default']['port']  
         self.webhook = self.config['default']['webhook']  
         self.token = self.config['secret']['token']
+        self.token_metrica = self.config['secret']['token_metrica']
         print(self.api_url, self.token)
         return True
 
@@ -32,6 +33,10 @@ class Config():
     def get_token(self):
         print(self.token)
         return self.token
+
+    def get_token_metrica(self):
+        print(self.token_metrica)
+        return self.token_metrica
 
     def get_host(self):
         print(self.host)

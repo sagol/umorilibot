@@ -2,6 +2,8 @@
 
 import logging
 import time
+import datetime
+import botan
 from telegram.ext import Updater, Filters
 from telegram.ext import (CommandHandler, MessageHandler, CallbackQueryHandler,
                           ConversationHandler)
@@ -18,14 +20,26 @@ logger = logging.getLogger(__name__)
 config = Config()
 config.load()
 ubot = Bot(config)
+botan_token = config.get_token_metrica()
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text(ubot.start())
+    botan.track(botan_token,
+                update.message.from_user,
+                {
+                        'daily': update.message.date.strftime('%Y-%m-%d'),
+                        'weekly': (update.message.date - datetime.timedelta(
+                            update.message.date.weekday())).strftime('%Y-%m-%d'),
+                        'monthly': update.message.date.strftime('%Y-%m')
+                },
+                'cohorts')
+
+    update.message.reply_text(ubot.start('http://umori.li'))
 
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
+    botan.track(botan_token, update.message.from_user, update.message.to_dict(), "help")
     update.message.reply_text(ubot.help())
 
 def build_menu(buttons,
@@ -41,7 +55,8 @@ def build_menu(buttons,
 
 def site_handler(bot, update, user_data):
     query = update.callback_query
-
+    
+    botan.track(botan_token, query.message.from_user, query.message.to_dict(), query.data)
     if query.message:
         bot.editMessageReplyMarkup(chat_id=query.message.chat_id, 
                                    message_id=query.message.message_id,
@@ -56,6 +71,8 @@ def site_handler(bot, update, user_data):
 
 def site_name_handler(bot, update, user_data):
     query = update.callback_query
+    botan.track(botan_token, query.message.from_user, query.message.to_dict(), query.data)
+
     if query.message:
         bot.editMessageReplyMarkup(chat_id=query.message.chat_id, 
                                    message_id=query.message.message_id, 
@@ -105,6 +122,9 @@ def site_read_handler(bot, update, user_data):
 
 def get(bot, update, user_data):
     """Send a dev message when the command /get is issued."""
+    botan.track(botan_token, update.message.from_user, update.message.to_dict(), "get")
+    update.message.from_user
+
     user_data['count'] = 0
     messages = ubot.get_sources_sites()
     button_list = [InlineKeyboardButton(s, callback_data=s) for s in messages]
@@ -114,6 +134,9 @@ def get(bot, update, user_data):
 
 def random(bot, update, user_data):
     """Send a dev message when the command /random is issued."""
+    botan.track(botan_token, update.message.from_user, update.message.to_dict(), "random")
+    update.message.from_user
+
     user_data['count'] = 0
     user_data['stories'] = ubot.random(num=None, site_names=None)
     if (len( user_data['stories']) == 0):
@@ -133,6 +156,7 @@ def random(bot, update, user_data):
     return SITE_READ
 
 def stop(bot, update):
+    botan.track(botan_token, update.message.from_user, update.message.to_dict(), "stop")
     return ConversationHandler.END
 
 def echo(bot, update):
@@ -196,9 +220,7 @@ def main():
     )
     dp.add_handler(conv_rnd_handler)
 
-
     updater.start_polling()
-
     updater.idle()
 
 

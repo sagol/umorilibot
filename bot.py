@@ -13,13 +13,14 @@ class Bot():
         self.stories = Stories(self.sources)        
         return self.stories.load()
     
-    def start(self):  
-        message = 'Бот для сайта http://umori.li'
+    def start(self, url):  
+        message = 'Бот для сайта {0}'.format(url)
         return message
 
     def help(self):
         message = "/get - читать истории из: \n\t{0}\n"\
-        "/random - случайные истории".format(
+        "/random - случайные истории\n"\
+        "/stop - прервать диалог с ботом".format(
             '\n\t'.join(['{0}'.format(y) for (x,y) in self.stories.get_description().items()]))
         return message
 
